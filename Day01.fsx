@@ -1,10 +1,9 @@
 let input = System.IO.File.ReadAllLines("inputs/01.txt")
+#time
 
 let getFirstAndLast (x: string) =
-    let y = x |> Seq.filter System.Char.IsDigit
-
-    $"{y |> Seq.head |> System.Char.ToString}{y |> Seq.last |> System.Char.ToString}"
-    |> int
+    10 * (x |> Seq.find System.Char.IsDigit |> System.Convert.ToInt32)
+    + (x |> Seq.findBack System.Char.IsDigit |> System.Convert.ToInt32)
 
 let parseP2 (x: string) =
     x
@@ -21,3 +20,4 @@ let parseP2 (x: string) =
 input |> Array.sumBy getFirstAndLast |> printfn "Part 1: %d"
 
 input |> Array.sumBy (parseP2 >> getFirstAndLast) |> printfn "Part 2: %d"
+#time
