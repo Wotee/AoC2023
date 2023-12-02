@@ -1,9 +1,12 @@
 let input = System.IO.File.ReadAllLines("inputs/01.txt")
 #time
 
+let inline toInt (x: char) = int x - int '0'
+
 let getFirstAndLast (x: string) =
-    10 * (x |> Seq.find System.Char.IsDigit |> System.Convert.ToInt32)
-    + (x |> Seq.findBack System.Char.IsDigit |> System.Convert.ToInt32)
+    let first = x |> Seq.find System.Char.IsDigit |> toInt
+    let last = x |> Seq.findBack System.Char.IsDigit |> toInt
+    10 * first + last
 
 let parseP2 (x: string) =
     x
