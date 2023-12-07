@@ -96,22 +96,9 @@ let sorter (lhs: Label array, _) (rhs: Label array, _) =
     let tlhs = type' lhs
     let trhs = type' rhs
     if tlhs = trhs then
-        if lhs.[0] = rhs.[0] then
-            if lhs.[1] = rhs.[1] then
-                if lhs.[2] = rhs.[2] then
-                    if lhs.[3] = rhs.[3] then
-                        if lhs.[4] = rhs.[4] then
-                            0
-                        else
-                            compare lhs.[4] rhs.[4]
-                    else
-                        compare lhs.[3] rhs.[3]
-                else
-                    compare lhs.[2] rhs.[2]
-            else
-                compare lhs.[1] rhs.[1]
-        else
-            compare lhs.[0] rhs.[0]
+        Array.map2 (fun l r -> compare l r) lhs rhs
+        |> Array.skipWhile (fun v -> v = 0)
+        |> Array.head
     else
         compare tlhs trhs
 
