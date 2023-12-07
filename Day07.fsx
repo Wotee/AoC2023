@@ -15,6 +15,7 @@ type Label =
     | Queen
     | King
     | Ace
+
 module Label =
     let fromChar (c: char) =
         match c with
@@ -63,25 +64,21 @@ type Type =
     | FiveOfAKind
 
 let type' (cards: Label array) =
-    match cards |> Array.sort with
-    | [|a;b;c;d;e|] when a = b && b = c && c = d && d = e -> FiveOfAKind
-    | [|j1; a; b; c; d|] when j1 = Joker && a = b && b = c && c = d -> FiveOfAKind
-    | [|j1; j2; a; b; c;|] when j1 = Joker && j2 = Joker && a = b && b = c -> FiveOfAKind
-    | [|j1; j2; j3; a; b;|] when j1 = Joker && j2 = Joker && j3 = Joker && a = b -> FiveOfAKind
-    | [|j1; j2; j3; j4; _;|] when j1 = Joker && j2 = Joker && j3 = Joker && j4 = Joker -> FiveOfAKind
-    | [|a;b;c;d;_|] | [|_;d;c;b;a|] when a = b && b = c && c = d -> FourOfAKind
-    | [|j1;a;b;c;_|] | [|j1;_;a;b;c|] when j1 = Joker && a = b && b = c -> FourOfAKind
-    | [|j1;j2;a;b;_|] | [|j1;j2;_;a;b|] when j1 = Joker && j2 = Joker && a = b -> FourOfAKind
-    | [|j1;j2;j3;_;_|] when j1 = Joker && j2 = Joker && j3 = Joker -> FourOfAKind
-    | [|a;b;c;d;e|] | [|e;d;c;b;a|] when a = b && b = c && d = e -> FullHouse
-    | [|j1;a;b;c;d|] when j1 = Joker && a = b && c = d -> FullHouse
-    | [|j1;j2;a;b;c|] when j1 = Joker && j2 = Joker && (a = b || b = c) -> FullHouse
-    | [|a;b;c;_;_|] | [|_;a;b;c;_|] | [|_;_;a;b;c|] when a = b && b = c -> ThreeOfAKind
-    | [|j1;a;b;_;_|] | [|j1;_;a;b;_|] | [|j1;_;_;a;b|] when j1 = Joker && a = b -> ThreeOfAKind
-    | [|j1;j2;_;_;_|] | [|j1;j2;_;_;_|] | [|j1;j2;_;_;_|] when j1 = Joker && j2 = Joker -> ThreeOfAKind
-    | [|a;b;c;d;_|] | [|a;b;_;c;d|] | [|_;a;b;c;d|] when a = b && c = d -> TwoPairs
-    | [|a;b;_;_;_|] | [|_;a;b;_;_|] | [|_;_;a;b;_|] | [|_;_;_;a;b|] when a = b -> OnePair
-    | [|j1;_;_;_;_|] when j1 = Joker -> OnePair
+    let sorted = cards |> Array.countBy id |> Array.sortByDescending snd |> Array.toList
+    let mostCommonNotJoker =
+        match sorted with
+        | (Joker, 5)::_ -> Ace // Five of a kind
+        | (Joker, _)::(label, _)::_ | (label,_)::_ -> label
+    cards
+    |> Array.map (fun c -> if c = Joker then mostCommonNotJoker else c)
+    |> Array.countBy id |> Array.sortByDescending snd |> Array.toList
+    |> function
+    | (_, 5)::_ -> FiveOfAKind
+    | (_, 4)::_ -> FourOfAKind
+    | (_, 3)::(_, 2)::_ -> FullHouse
+    | (_, 3)::_ -> ThreeOfAKind
+    | (_, 2)::(_, 2)::_ -> TwoPairs
+    | (_, 2)::_ -> OnePair
     | _ -> HighCard
 
 let sorter (lhs: Label array, _) (rhs: Label array, _) =
