@@ -1,53 +1,51 @@
 let input = System.IO.File.ReadAllLines("inputs/07.txt")
 
 type Label =
-    | Joker = 1
-    | Two = 2
-    | Three = 3
-    | Four = 4
-    | Five = 5
-    | Six = 6
-    | Seven = 7
-    | Eight = 8
-    | Nine = 9
-    | Ten = 10
-    | Jack = 11
-    | Queen = 12
-    | King = 13
-    | Ace = 14
+    | Joker
+    | Two
+    | Three
+    | Four
+    | Five
+    | Six
+    | Seven
+    | Eight
+    | Nine
+    | Ten
+    | Jack
+    | Queen
+    | King
+    | Ace
 module Label =
     let fromChar (c: char) =
         match c with
-        | '2' -> Label.Two
-        | '3' -> Label.Three
-        | '4' -> Label.Four
-        | '5' -> Label.Five
-        | '6' -> Label.Six
-        | '7' -> Label.Seven
-        | '8' -> Label.Eight
-        | '9' -> Label.Nine
-        | 'T' -> Label.Ten
-        | 'J' -> Label.Jack
-        | 'Q' -> Label.Queen
-        | 'K' -> Label.King
-        | 'A' -> Label.Ace
-        | _ -> failwith "Invalid card label"
+        | '2' -> Two
+        | '3' -> Three
+        | '4' -> Four
+        | '5' -> Five
+        | '6' -> Six
+        | '7' -> Seven
+        | '8' -> Eight
+        | '9' -> Nine
+        | 'T' -> Ten
+        | 'J' -> Jack
+        | 'Q' -> Queen
+        | 'K' -> King
+        | 'A' -> Ace
     let fromCharP2 (c: char) =
         match c with
-        | '2' -> Label.Two
-        | '3' -> Label.Three
-        | '4' -> Label.Four
-        | '5' -> Label.Five
-        | '6' -> Label.Six
-        | '7' -> Label.Seven
-        | '8' -> Label.Eight
-        | '9' -> Label.Nine
-        | 'T' -> Label.Ten
-        | 'J' -> Label.Joker
-        | 'Q' -> Label.Queen
-        | 'K' -> Label.King
-        | 'A' -> Label.Ace
-        | _ -> failwith "Invalid card label"
+        | '2' -> Two
+        | '3' -> Three
+        | '4' -> Four
+        | '5' -> Five
+        | '6' -> Six
+        | '7' -> Seven
+        | '8' -> Eight
+        | '9' -> Nine
+        | 'T' -> Ten
+        | 'J' -> Joker
+        | 'Q' -> Queen
+        | 'K' -> King
+        | 'A' -> Ace
 
 let parseLine mapper (line: string) =
     let parts = line.Split([|' '|])
@@ -56,49 +54,41 @@ let parseLine mapper (line: string) =
     cards, bid
 
 type Type =
-    | HighCard = 0
-    | OnePair = 1
-    | TwoPairs = 2
-    | ThreeOfAKind = 3
-    | FullHouse = 4
-    | FourOfAKind = 5
-    | FiveOfAKind = 6
+    | HighCard
+    | OnePair
+    | TwoPairs
+    | ThreeOfAKind
+    | FullHouse
+    | FourOfAKind
+    | FiveOfAKind
 
 let type' (cards: Label array) =
     match cards |> Array.sort with
-    // Five
-    | [|a;b;c;d;e|] when a = b && b = c && c = d && d = e -> Type.FiveOfAKind
-    | [|j1; a; b; c; d|] when j1 = Label.Joker && a = b && b = c && c = d -> Type.FiveOfAKind
-    | [|j1; j2; a; b; c;|] when j1 = Label.Joker && j2 = Label.Joker && a = b && b = c -> Type.FiveOfAKind
-    | [|j1; j2; j3; a; b;|] when j1 = Label.Joker && j2 = Label.Joker && j3 = Label.Joker && a = b -> Type.FiveOfAKind
-    | [|j1; j2; j3; j4; _;|] when j1 = Label.Joker && j2 = Label.Joker && j3 = Label.Joker && j4 = Label.Joker -> Type.FiveOfAKind
-    // Four
-    | [|a;b;c;d;_|] | [|_;d;c;b;a|] when a = b && b = c && c = d -> Type.FourOfAKind
-    | [|j1;a;b;c;_|] | [|j1;_;a;b;c|] when j1 = Label.Joker && a = b && b = c -> Type.FourOfAKind
-    | [|j1;j2;a;b;_|] | [|j1;j2;_;a;b|] when j1 = Label.Joker && j2 = Label.Joker && a = b -> Type.FourOfAKind
-    | [|j1;j2;j3;_;_|] when j1 = Label.Joker && j2 = Label.Joker && j3 = Label.Joker -> Type.FourOfAKind
-    // Full house
-    | [|a;b;c;d;e|] | [|e;d;c;b;a|] when a = b && b = c && d = e -> Type.FullHouse
-    | [|j1;a;b;c;d|] when j1 = Label.Joker && a = b && c = d -> Type.FullHouse
-    | [|j1;j2;a;b;c|] when j1 = Label.Joker && j2 = Label.Joker && (a = b || b = c) -> Type.FullHouse
-    // Three of a
-    | [|a;b;c;_;_|] | [|_;a;b;c;_|] | [|_;_;a;b;c|] when a = b && b = c -> Type.ThreeOfAKind
-    | [|j1;a;b;_;_|] | [|j1;_;a;b;_|] | [|j1;_;_;a;b|] when j1 = Label.Joker && a = b -> Type.ThreeOfAKind
-    | [|j1;j2;_;_;_|] | [|j1;j2;_;_;_|] | [|j1;j2;_;_;_|] when j1 = Label.Joker && j2 = Label.Joker -> Type.ThreeOfAKind
-    // Two pairs. With joker, we can have 3 of a kind always
-    | [|a;b;c;d;_|] | [|a;b;_;c;d|] | [|_;a;b;c;d|] when a = b && c = d -> Type.TwoPairs
-    // One pair
-    | [|a;b;_;_;_|] | [|_;a;b;_;_|] | [|_;_;a;b;_|] | [|_;_;_;a;b|] when a = b -> Type.OnePair
-    | [|j1;_;_;_;_|] when j1 = Label.Joker -> Type.OnePair
-    | _ -> Type.HighCard
+    | [|a;b;c;d;e|] when a = b && b = c && c = d && d = e -> FiveOfAKind
+    | [|j1; a; b; c; d|] when j1 = Joker && a = b && b = c && c = d -> FiveOfAKind
+    | [|j1; j2; a; b; c;|] when j1 = Joker && j2 = Joker && a = b && b = c -> FiveOfAKind
+    | [|j1; j2; j3; a; b;|] when j1 = Joker && j2 = Joker && j3 = Joker && a = b -> FiveOfAKind
+    | [|j1; j2; j3; j4; _;|] when j1 = Joker && j2 = Joker && j3 = Joker && j4 = Joker -> FiveOfAKind
+    | [|a;b;c;d;_|] | [|_;d;c;b;a|] when a = b && b = c && c = d -> FourOfAKind
+    | [|j1;a;b;c;_|] | [|j1;_;a;b;c|] when j1 = Joker && a = b && b = c -> FourOfAKind
+    | [|j1;j2;a;b;_|] | [|j1;j2;_;a;b|] when j1 = Joker && j2 = Joker && a = b -> FourOfAKind
+    | [|j1;j2;j3;_;_|] when j1 = Joker && j2 = Joker && j3 = Joker -> FourOfAKind
+    | [|a;b;c;d;e|] | [|e;d;c;b;a|] when a = b && b = c && d = e -> FullHouse
+    | [|j1;a;b;c;d|] when j1 = Joker && a = b && c = d -> FullHouse
+    | [|j1;j2;a;b;c|] when j1 = Joker && j2 = Joker && (a = b || b = c) -> FullHouse
+    | [|a;b;c;_;_|] | [|_;a;b;c;_|] | [|_;_;a;b;c|] when a = b && b = c -> ThreeOfAKind
+    | [|j1;a;b;_;_|] | [|j1;_;a;b;_|] | [|j1;_;_;a;b|] when j1 = Joker && a = b -> ThreeOfAKind
+    | [|j1;j2;_;_;_|] | [|j1;j2;_;_;_|] | [|j1;j2;_;_;_|] when j1 = Joker && j2 = Joker -> ThreeOfAKind
+    | [|a;b;c;d;_|] | [|a;b;_;c;d|] | [|_;a;b;c;d|] when a = b && c = d -> TwoPairs
+    | [|a;b;_;_;_|] | [|_;a;b;_;_|] | [|_;_;a;b;_|] | [|_;_;_;a;b|] when a = b -> OnePair
+    | [|j1;_;_;_;_|] when j1 = Joker -> OnePair
+    | _ -> HighCard
 
 let sorter (lhs: Label array, _) (rhs: Label array, _) =
     let tlhs = type' lhs
     let trhs = type' rhs
     if tlhs = trhs then
-        Array.map2 (fun l r -> compare l r) lhs rhs
-        |> Array.skipWhile (fun v -> v = 0)
-        |> Array.head
+        Array.zip lhs rhs |> Array.pick (fun (l, r) -> match compare l r with 0 -> None | v -> Some v)
     else
         compare tlhs trhs
 
