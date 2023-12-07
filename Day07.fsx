@@ -1,5 +1,6 @@
+#nowarn "25"
 let input = System.IO.File.ReadAllLines("inputs/07.txt")
-
+#time
 type Label =
     | Joker
     | Two
@@ -32,28 +33,6 @@ module Label =
         | 'Q' -> Queen
         | 'K' -> King
         | 'A' -> Ace
-    let fromCharP2 (c: char) =
-        match c with
-        | '2' -> Two
-        | '3' -> Three
-        | '4' -> Four
-        | '5' -> Five
-        | '6' -> Six
-        | '7' -> Seven
-        | '8' -> Eight
-        | '9' -> Nine
-        | 'T' -> Ten
-        | 'J' -> Joker
-        | 'Q' -> Queen
-        | 'K' -> King
-        | 'A' -> Ace
-
-let parseLine mapper (line: string) =
-    let parts = line.Split([|' '|])
-    let cards = parts[0] |> Seq.map mapper |> Seq.toArray
-    let bid = parts[1] |> int
-    cards, bid
-
 type Type =
     | HighCard
     | OnePair
@@ -62,6 +41,9 @@ type Type =
     | FullHouse
     | FourOfAKind
     | FiveOfAKind
+
+let parseLine mapper (line: string) =
+    line.Split([|' '|]) |> fun parts -> parts[0] |> Seq.map mapper |> Seq.toArray, parts[1] |> int
 
 let type' (cards: Label array) =
     let sorted = cards |> Array.countBy id |> Array.sortByDescending snd |> Array.toList
@@ -93,8 +75,9 @@ let solve parser =
     input
     |> Array.map (parseLine parser)
     |> Array.sortWith sorter
-    |> Array.mapi (fun i (x, bid) -> (i+1)*bid)
+    |> Array.mapi (fun i (_, bid) -> (i+1)*bid)
     |> Array.sum
 
 solve Label.fromChar |> printfn "Part 1: %d"
-solve Label.fromCharP2 |> printfn "Part 2: %d"
+solve (Label.fromChar >> function Jack -> Joker | x -> x) |> printfn "Part 2: %d"
+#time
