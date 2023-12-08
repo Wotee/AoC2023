@@ -1,7 +1,6 @@
 #nowarn "25"
 let input = System.IO.File.ReadAllLines("inputs/08.txt")
 #time
-
 let steps = input[0]
 let stepsLength = steps.Length
 let directions =
@@ -11,12 +10,8 @@ let directions =
     |> Map.ofArray
 
 let rec calculateNeededSteps (i: int64) location  =
-    let leftOrRight = steps[int i%stepsLength]
-    let nextLocation =
-        match leftOrRight with 
-        | 'L' -> fst directions.[location]
-        | 'R' -> snd directions.[location]
     let stepsTaken = i + 1L
+    let nextLocation = (match steps[int i%stepsLength] with 'L' -> fst | 'R' -> snd) directions.[location]
     if nextLocation.EndsWith("Z") then
         stepsTaken
     else
